@@ -1,2 +1,1 @@
-# pikchr
-pikchr windows build
+Automated Windows build for Pikchr.
