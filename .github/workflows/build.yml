@@ -1,0 +1,38 @@
+name: Build pikchr
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: choco install -y fossil mingw
+        
+      - name: Clone pikchr repository
+        run: |
+          echo "y" | fossil clone https://pikchr.org/ pikchr.fossil
+          fossil open pikchr.fossil -f
+          echo "y" | fossil up trunk
+        
+      - name: Compile
+        shell: pwsh
+        run: |
+          gcc -DPIKCHR_SHELL -o pikchr.exe pikchr.c -lm
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v0.0.0-${{ github.run_number }}"
+          body: "Automatically generated release."
+          draft: false
+          prerelease: false
+          make_latest: true
+          files: ./pikchr.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GT }}
